@@ -2,33 +2,49 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 
-const LoginForm = () => {
+const SignupForm = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const { login } = useAuth();
+  const { signup } = useAuth();
   const navigate = useNavigate();
+
+  const validate = () => {
+    if (!username.trim() || !password.trim() || !confirmPassword.trim()) {
+      return "Please fill in all fields";
+    }
+    if (username.trim().length < 3 || username.trim().length > 20) {
+      return "Username must be 3-20 characters";
+    }
+    if (password.length < 6) {
+      return "Password must be at least 6 characters";
+    }
+    if (password !== confirmPassword) {
+      return "Passwords do not match";
+    }
+    return "";
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
-    if (!username.trim() || !password.trim()) {
-      setError("Please fill in both fields");
+    const validationError = validate();
+    if (validationError) {
+      setError(validationError);
       return;
     }
 
     setLoading(true);
     try {
-      await login(username, password);
-      const user = localStorage.getItem('user');
-      console.log(user);
+      await signup(username, password);
       navigate("/dashboard");
     } catch (err) {
       const message =
-        err.response?.data?.message || "Invalid username or password";
+        err.response?.data?.message || "Signup failed. Please try again.";
       setError(message);
     } finally {
       setLoading(false);
@@ -50,7 +66,7 @@ const LoginForm = () => {
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           className="w-full rounded-lg bg-gray-800 border border-gray-700 px-4 py-2.5 text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          placeholder="Enter your username"
+          placeholder="Choose a username"
           autoComplete="username"
         />
       </div>
@@ -68,8 +84,26 @@ const LoginForm = () => {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           className="w-full rounded-lg bg-gray-800 border border-gray-700 px-4 py-2.5 text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          placeholder="Enter your password"
-          autoComplete="current-password"
+          placeholder="At least 6 characters"
+          autoComplete="new-password"
+        />
+      </div>
+
+      <div>
+        <label
+          htmlFor="confirmPassword"
+          className="block text-sm font-medium text-gray-300 mb-1"
+        >
+          Confirm Password
+        </label>
+        <input
+          id="confirmPassword"
+          type="password"
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          className="w-full rounded-lg bg-gray-800 border border-gray-700 px-4 py-2.5 text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          placeholder="Re-enter your password"
+          autoComplete="new-password"
         />
       </div>
 
@@ -84,10 +118,10 @@ const LoginForm = () => {
         disabled={loading}
         className="w-full rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-60 disabled:cursor-not-allowed text-white font-medium py-2.5 transition-colors"
       >
-        {loading ? "Signing in..." : "Sign In"}
+        {loading ? "Creating account..." : "Create Account"}
       </button>
     </form>
   );
 };
 
-export default LoginForm;
+export default SignupForm;

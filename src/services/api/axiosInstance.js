@@ -7,7 +7,6 @@ const axiosInstance = axios.create({
   },
 });
 
-// Attach JWT to every outgoing request if present
 axiosInstance.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
   if (token) {
@@ -16,15 +15,17 @@ axiosInstance.interceptors.request.use((config) => {
   return config;
 });
 
-// Global handling for expired/invalid tokens
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    const isAuthEndpoint = error.config?.url?.includes("/api/auth/");
+
+    if (error.response?.status === 401 && !isAuthEndpoint) {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
       window.location.href = "/login";
     }
+
     return Promise.reject(error);
   }
 );

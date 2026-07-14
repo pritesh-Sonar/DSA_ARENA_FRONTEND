@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect } from "react";
-import { login as loginService } from "../services/authService";
+import { login as loginService, signup as signupService } from "../services/authService";
 
 export const AuthContext = createContext(null);
 
@@ -16,15 +16,22 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-  const login = async (username, password) => {
-    const data = await loginService(username, password);
+  const persistSession = (data) => {
     const userInfo = { username: data.username, role: data.role };
-
     localStorage.setItem("token", data.token);
     localStorage.setItem("user", JSON.stringify(userInfo));
     setUser(userInfo);
-
     return userInfo;
+  };
+
+  const login = async (username, password) => {
+    const data = await loginService(username, password);
+    return persistSession(data);
+  };
+
+  const signup = async (username, password) => {
+    const data = await signupService(username, password);
+    return persistSession(data); // auto-login after signup, since your backend already returns a token
   };
 
   const logout = () => {
@@ -34,7 +41,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, signup, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );

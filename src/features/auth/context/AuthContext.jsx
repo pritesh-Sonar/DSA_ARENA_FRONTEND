@@ -1,5 +1,9 @@
 import { createContext, useState, useEffect } from "react";
-import { login as loginService, signup as signupService } from "../services/authService";
+import {
+  login as loginService,
+  sendOtp as sendOtpService,
+  verifyOtp as verifyOtpService,
+} from "../services/authService";
 
 export const AuthContext = createContext(null);
 
@@ -29,9 +33,15 @@ export const AuthProvider = ({ children }) => {
     return persistSession(data);
   };
 
-  const signup = async (username, password) => {
-    const data = await signupService(username, password);
-    return persistSession(data); // auto-login after signup, since your backend already returns a token
+  // Step 1 of signup — no session created yet, just triggers OTP email
+  const sendOtp = async (username, email, password) => {
+    return sendOtpService(username, email, password);
+  };
+
+  // Step 2 of signup — this is what actually creates the account + session
+  const verifyOtp = async (email, otpCode) => {
+    const data = await verifyOtpService(email, otpCode);
+    return persistSession(data);
   };
 
   const logout = () => {
@@ -41,7 +51,9 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, signup, logout, loading }}>
+    <AuthContext.Provider
+      value={{ user, login, sendOtp, verifyOtp, logout, loading }}
+    >
       {children}
     </AuthContext.Provider>
   );

@@ -16,7 +16,14 @@ const Login = () => {
         </div>
 
         <LoginForm />
-
+        <p className="text-center text-sm text-gray-400 mt-3">
+          <Link
+            to="/forgot-password"
+            className="text-indigo-400 hover:underline"
+          >
+            Forgot password?
+          </Link>
+        </p>
         <p className="text-center text-sm text-gray-400 mt-6">
           Don't have an account?{" "}
           <Link to="/signup" className="text-indigo-400 hover:underline">

@@ -50,9 +50,24 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  const setUserFromOAuth = ({ token, username, role }) => {
+    const userInfo = { username, role };
+    localStorage.setItem("token", token);
+    localStorage.setItem("user", JSON.stringify(userInfo));
+    setUser(userInfo);
+  };
+
   return (
     <AuthContext.Provider
-      value={{ user, login, sendOtp, verifyOtp, logout, loading }}
+      value={{
+        user,
+        login,
+        sendOtp,
+        verifyOtp,
+        setUserFromOAuth,
+        logout,
+        loading,
+      }}
     >
       {children}
     </AuthContext.Provider>

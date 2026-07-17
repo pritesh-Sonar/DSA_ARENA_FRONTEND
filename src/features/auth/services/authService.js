@@ -39,3 +39,7 @@ export const resetPassword = async (email, otpCode, newPassword) => {
   });
   return response.data;
 };
+
+export const getGoogleLoginUrl = () => {
+  return "http://localhost:8080/oauth2/authorization/google";
+};

@@ -6,6 +6,8 @@ import Dashboard from "../features/dashboard/pages/Dashboard";
 import ProtectedRoute from "./ProtectedRoute";
 import ForgotPassword from "../features/auth/pages/ForgotPassword";
 import ResetPassword from "../features/auth/pages/ResetPassword";
+import OAuthSuccess from "../features/auth/pages/OAuthSuccess";
+import GameArena from "../games/pages/GameArena";
 
 const AppRoutes = () => {
   return (
@@ -21,9 +23,18 @@ const AppRoutes = () => {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/arena/:roomId"
+        element={
+          <ProtectedRoute>
+            <GameArena />
+          </ProtectedRoute>
+        }
+      />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
+      <Route path="/oauth-success" element={<OAuthSuccess />} />
     </Routes>
   );
 };

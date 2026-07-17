@@ -15,4 +15,8 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+  define: {
+    // This maps the 'global' variable to the browser's 'window' object
+    global: 'window',
+  },
 })

@@ -7,7 +7,6 @@ import ProtectedRoute from "./ProtectedRoute";
 import ForgotPassword from "../features/auth/pages/ForgotPassword";
 import ResetPassword from "../features/auth/pages/ResetPassword";
 import OAuthSuccess from "../features/auth/pages/OAuthSuccess";
-import GameArena from "../games/pages/GameArena";
 import TicTacToeArena from "../games/tictactoe/pages/TicTacToeArena";
 
 const AppRoutes = () => {
@@ -21,14 +20,6 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <Dashboard />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/arena/:roomId"
-        element={
-          <ProtectedRoute>
-            <GameArena />
           </ProtectedRoute>
         }
       />

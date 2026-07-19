@@ -1,0 +1,17 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@import "tailwindcss";
+
+@theme {
+  --color-arena-bg: #05070C;
+  --color-arena-surface: #0D111B;
+  --color-arena-surfaceHover: #131826;
+  --color-arena-border: #1E2536;
+
+  --color-accent-cyan: #22D3EE;
+  --color-accent-amber: #F5A623;
+  --color-accent-green: #34D399;
+
+  --font-display: "Space Grotesk", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+}

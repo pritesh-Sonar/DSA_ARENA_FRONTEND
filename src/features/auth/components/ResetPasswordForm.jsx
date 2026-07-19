@@ -64,6 +64,9 @@ const ResetPasswordForm = ({ email }) => {
       setSuccess(true);
       setTimeout(() => navigate("/login"), 2000);
     } catch (err) {
+      if (err.response?.status === 429) {
+        return;
+      }
       const message = err.response?.data?.message || "Invalid or expired OTP";
       setError(message);
     } finally {

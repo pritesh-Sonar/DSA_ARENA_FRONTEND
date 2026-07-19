@@ -62,6 +62,9 @@ const SignupForm = () => {
         },
       });
     } catch (err) {
+      if (err.response?.status === 429) {
+        return;
+      }
       const message =
         err.response?.data?.message || "Signup failed. Please try again.";
       setError(message);

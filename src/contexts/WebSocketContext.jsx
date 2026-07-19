@@ -12,37 +12,38 @@ export const WebSocketProvider = ({ children }) => {
 
   useEffect(() => {
     // Extract the token from local storage
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
 
     const client = new Client({
-        webSocketFactory: () => new SockJS('http://localhost:8080/ws'),
-        connectHeaders: {
-            // Pass the bearer token safely inside the native STOMP connect payload frame
-            Authorization: token ? `Bearer ${token}` : '',
-        },
-        debug: (str) => console.log("[STOMP Debug]: " + str),
-        reconnectDelay: 5000,
-        heartbeatIncoming: 4000,
-        heartbeatOutgoing: 4000,
+      webSocketFactory: () =>
+        new SockJS(`${import.meta.env.VITE_API_BASE_URL}/ws`),
+      connectHeaders: {
+        // Pass the bearer token safely inside the native STOMP connect payload frame
+        Authorization: token ? `Bearer ${token}` : "",
+      },
+      debug: (str) => console.log("[STOMP Debug]: " + str),
+      reconnectDelay: 5000,
+      heartbeatIncoming: 4000,
+      heartbeatOutgoing: 4000,
     });
 
     client.onConnect = (frame) => {
-        console.log('Connected securely to Spring Boot WebSockets!');
-        setIsConnected(true);
+      console.log("Connected securely to Spring Boot WebSockets!");
+      setIsConnected(true);
     };
 
     client.onDisconnect = () => {
-        console.log('Disconnected securely from WebSockets.');
-        setIsConnected(false);
+      console.log("Disconnected securely from WebSockets.");
+      setIsConnected(false);
     };
 
     client.activate();
     setStompClient(client);
 
     return () => {
-        client.deactivate();
+      client.deactivate();
     };
-}, []);
+  }, []);
 
   return (
     <WebSocketContext.Provider value={{ stompClient, isConnected }}>

@@ -8,6 +8,7 @@ import ForgotPassword from "../features/auth/pages/ForgotPassword";
 import ResetPassword from "../features/auth/pages/ResetPassword";
 import OAuthSuccess from "../features/auth/pages/OAuthSuccess";
 import GameArena from "../games/pages/GameArena";
+import TicTacToeArena from "../games/tictactoe/pages/TicTacToeArena";
 
 const AppRoutes = () => {
   return (
@@ -35,6 +36,14 @@ const AppRoutes = () => {
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
       <Route path="/oauth-success" element={<OAuthSuccess />} />
+      <Route
+        path="/game/tictactoe/:roomId"
+        element={
+          <ProtectedRoute>
+            <TicTacToeArena />
+          </ProtectedRoute>
+        }
+      />
     </Routes>
   );
 };

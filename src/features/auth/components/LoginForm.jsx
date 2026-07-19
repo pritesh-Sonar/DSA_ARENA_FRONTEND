@@ -28,6 +28,9 @@ const LoginForm = () => {
       console.log(user);
       navigate("/dashboard");
     } catch (err) {
+      if (err.response?.status === 429) {
+        return;
+      }
       const message =
         err.response?.data?.message || "Invalid username or password";
       setError(message);

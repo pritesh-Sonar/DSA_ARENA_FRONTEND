@@ -66,6 +66,9 @@ const OtpVerificationForm = ({ email, pendingSignup }) => {
       await verifyOtp(email, otpCode);
       navigate("/dashboard");
     } catch (err) {
+      if (err.response?.status === 429) {
+        return;
+      }
       const message = err.response?.data?.message || "Invalid or expired OTP";
       setError(message);
     } finally {

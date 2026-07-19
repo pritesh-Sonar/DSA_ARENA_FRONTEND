@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useWebSocket } from "../../../contexts/WebSocketContext";
 import { useNavigate } from "react-router-dom";
 
-const MatchmakingQueue = () => {
+const MatchmakingQueue = ({ gameType = "tictactoe" }) => {
   const { stompClient, isConnected } = useWebSocket();
   const [isSearching, setIsSearching] = useState(false);
   const [searchTime, setSearchTime] = useState(0);
@@ -12,7 +12,6 @@ const MatchmakingQueue = () => {
   const timerRef = useRef(null);
   const subscriptionRef = useRef(null);
 
-  // Track elapsed queue time
   useEffect(() => {
     if (isSearching) {
       timerRef.current = setInterval(() => {
@@ -26,7 +25,6 @@ const MatchmakingQueue = () => {
     return () => clearInterval(timerRef.current);
   }, [isSearching]);
 
-  // Cleanup subscriptions cleanly if component unmounts unexpectedly
   useEffect(() => {
     return () => {
       if (subscriptionRef.current) {
@@ -40,21 +38,20 @@ const MatchmakingQueue = () => {
 
     setIsSearching(true);
 
-    // 1. Subscribe to the unique private user queue mapped in MatchmakingService
     subscriptionRef.current = stompClient.subscribe(
       "/user/queue/match",
       (message) => {
         const data = JSON.parse(message.body);
         setMatchData(data);
         setIsSearching(false);
-        console.log("Match Found! Redirecting to arena...", data);
 
-        // 3. Redirect to the game arena, passing room metadata via route state
-        navigate(`/arena/${data.roomId}`, { state: data });
+        // Route matches the game that was queued for — currently only
+        // tictactoe has an arena built, so this stays hardcoded to that
+        // path until more games are wired up.
+        navigate(`/game/tictactoe/${data.roomId}`, { state: data });
       },
     );
 
-    // 2. Publish a payload-free signal to target your backend controller endpoint
     stompClient.publish({ destination: "/app/matchmake.join" });
   };
 
@@ -62,11 +59,8 @@ const MatchmakingQueue = () => {
     if (!stompClient || !isConnected) return;
 
     setIsSearching(false);
-
-    // Notify backend to remove player from ConcurrentLinkedQueue structure
     stompClient.publish({ destination: "/app/matchmake.leave" });
 
-    // Kill active subscription channel gracefully
     if (subscriptionRef.current) {
       subscriptionRef.current.unsubscribe();
       subscriptionRef.current = null;
@@ -80,27 +74,29 @@ const MatchmakingQueue = () => {
   };
 
   return (
-    <div className="bg-gray-900 border border-gray-800 p-6 rounded-xl shadow-lg max-w-md w-full mx-auto text-center text-white">
-      <h2 className="text-xl font-bold mb-4 tracking-wide text-gray-100">
-        DSA Arena Matchmaking
+    <div className="bg-arena-surface border border-arena-border p-6 rounded-2xl shadow-lg max-w-md w-full mx-auto text-center text-white">
+      <p className="font-mono text-[10px] tracking-widest text-accent-cyan mb-1">
+        {gameType.toUpperCase()} // QUEUE
+      </p>
+      <h2 className="font-display text-xl font-bold mb-4 tracking-wide text-gray-100">
+        Random Matchmaking
       </h2>
 
       {!isSearching && !matchDetails && (
         <div>
-          <p className="text-gray-400 mb-6 text-sm">
-            Ready to battle? Enter the active queue structure to match against
-            live players.
+          <p className="text-gray-500 mb-6 text-sm">
+            Enter the queue to be matched against a live opponent.
           </p>
           <button
             onClick={startSearch}
             disabled={!isConnected}
             className={`w-full py-3 px-6 rounded-lg font-semibold tracking-wide transition duration-200 ${
               isConnected
-                ? "bg-blue-600 hover:bg-blue-500 shadow-md shadow-blue-900/30 text-white"
-                : "bg-gray-800 text-gray-500 cursor-not-allowed"
+                ? "bg-accent-cyan hover:bg-cyan-400 text-arena-bg shadow-md shadow-cyan-900/30"
+                : "bg-arena-bg text-gray-600 cursor-not-allowed border border-arena-border"
             }`}
           >
-            {isConnected ? "Find Match" : "Connecting to Core Broker..."}
+            {isConnected ? "Find Match" : "Connecting..."}
           </button>
         </div>
       )}
@@ -108,9 +104,9 @@ const MatchmakingQueue = () => {
       {isSearching && (
         <div className="space-y-6">
           <div className="flex justify-center items-center space-x-2">
-            <span className="w-3 h-3 bg-blue-500 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
-            <span className="w-3 h-3 bg-blue-500 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
-            <span className="w-3 h-3 bg-blue-500 rounded-full animate-bounce"></span>
+            <span className="w-3 h-3 bg-accent-cyan rounded-full animate-bounce [animation-delay:-0.3s]"></span>
+            <span className="w-3 h-3 bg-accent-cyan rounded-full animate-bounce [animation-delay:-0.15s]"></span>
+            <span className="w-3 h-3 bg-accent-cyan rounded-full animate-bounce"></span>
           </div>
           <p className="text-gray-300 font-medium animate-pulse text-lg">
             Searching for an opponent...
@@ -120,7 +116,7 @@ const MatchmakingQueue = () => {
           </p>
           <button
             onClick={cancelSearch}
-            className="w-full py-2.5 px-6 border border-gray-700 rounded-lg text-gray-300 font-medium hover:bg-gray-800 transition duration-200"
+            className="w-full py-2.5 px-6 border border-arena-border rounded-lg text-gray-300 font-medium hover:bg-arena-surfaceHover transition duration-200"
           >
             Cancel Search
           </button>
@@ -128,8 +124,8 @@ const MatchmakingQueue = () => {
       )}
 
       {matchDetails && (
-        <div className="border border-green-800 bg-green-950/20 p-4 rounded-lg space-y-3">
-          <p className="text-green-400 font-bold text-lg animate-bounce">
+        <div className="border border-accent-green/30 bg-accent-green/10 p-4 rounded-lg space-y-3">
+          <p className="text-accent-green font-bold text-lg animate-bounce">
             Match Found!
           </p>
           <div className="text-sm text-gray-300 space-y-1">
@@ -141,7 +137,7 @@ const MatchmakingQueue = () => {
             </p>
             <p>
               Your Symbol:{" "}
-              <span className="font-mono font-bold text-blue-400">
+              <span className="font-mono font-bold text-accent-cyan">
                 {matchDetails.playerSymbol}
               </span>
             </p>

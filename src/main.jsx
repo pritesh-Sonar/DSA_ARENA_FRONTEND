@@ -4,15 +4,18 @@ import { BrowserRouter } from "react-router-dom";
 import { AuthProvider } from "./features/auth/context/AuthContext";
 import AppRoutes from "./routes/AppRoutes";
 import ToastContainer from "./components/ui/ToastContainer";
+import ErrorBoundary from "./components/error/ErrorBoundary";
 import "./index.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <BrowserRouter>
-      <AuthProvider>
-        <AppRoutes />
-        <ToastContainer />
-      </AuthProvider>
-    </BrowserRouter>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <AuthProvider>
+          <AppRoutes />
+          <ToastContainer />
+        </AuthProvider>
+      </BrowserRouter>
+    </ErrorBoundary>
   </React.StrictMode>,
 );
